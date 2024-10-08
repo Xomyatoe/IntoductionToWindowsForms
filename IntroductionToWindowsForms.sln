@@ -5,6 +5,10 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IntroductionToWindowsForms", "IntroductionToWindowsForms\IntroductionToWindowsForms.vcxproj", "{B0F7EC53-DFEB-4AC3-A148-E9F27BD03232}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ListBox", "ListBox\ListBox.vcxproj", "{A16CA235-590E-4C25-9F85-C3A52D5418FE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComboBox", "ComboBox\ComboBox.vcxproj", "{A782EF1C-843B-4653-B4FB-5F4600647167}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +25,22 @@ Global
 		{B0F7EC53-DFEB-4AC3-A148-E9F27BD03232}.Release|x64.Build.0 = Release|x64
 		{B0F7EC53-DFEB-4AC3-A148-E9F27BD03232}.Release|x86.ActiveCfg = Release|Win32
 		{B0F7EC53-DFEB-4AC3-A148-E9F27BD03232}.Release|x86.Build.0 = Release|Win32
+		{A16CA235-590E-4C25-9F85-C3A52D5418FE}.Debug|x64.ActiveCfg = Debug|x64
+		{A16CA235-590E-4C25-9F85-C3A52D5418FE}.Debug|x64.Build.0 = Debug|x64
+		{A16CA235-590E-4C25-9F85-C3A52D5418FE}.Debug|x86.ActiveCfg = Debug|Win32
+		{A16CA235-590E-4C25-9F85-C3A52D5418FE}.Debug|x86.Build.0 = Debug|Win32
+		{A16CA235-590E-4C25-9F85-C3A52D5418FE}.Release|x64.ActiveCfg = Release|x64
+		{A16CA235-590E-4C25-9F85-C3A52D5418FE}.Release|x64.Build.0 = Release|x64
+		{A16CA235-590E-4C25-9F85-C3A52D5418FE}.Release|x86.ActiveCfg = Release|Win32
+		{A16CA235-590E-4C25-9F85-C3A52D5418FE}.Release|x86.Build.0 = Release|Win32
+		{A782EF1C-843B-4653-B4FB-5F4600647167}.Debug|x64.ActiveCfg = Debug|x64
+		{A782EF1C-843B-4653-B4FB-5F4600647167}.Debug|x64.Build.0 = Debug|x64
+		{A782EF1C-843B-4653-B4FB-5F4600647167}.Debug|x86.ActiveCfg = Debug|Win32
+		{A782EF1C-843B-4653-B4FB-5F4600647167}.Debug|x86.Build.0 = Debug|Win32
+		{A782EF1C-843B-4653-B4FB-5F4600647167}.Release|x64.ActiveCfg = Release|x64
+		{A782EF1C-843B-4653-B4FB-5F4600647167}.Release|x64.Build.0 = Release|x64
+		{A782EF1C-843B-4653-B4FB-5F4600647167}.Release|x86.ActiveCfg = Release|Win32
+		{A782EF1C-843B-4653-B4FB-5F4600647167}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
