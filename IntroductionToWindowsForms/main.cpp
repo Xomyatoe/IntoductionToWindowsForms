@@ -1,79 +1,236 @@
+п»їп»ї//ListBox
 #include<Windows.h>
-#include "resource.h"
+#include<cstdio>
+#include"resource.h"
+#include<CommCtrl.h>
 
-//Процедура окна:
+CONST CHAR* g_LIST_BOX_ITEMS[] = { "This", "is", "my", "first", "List", "Box" };
+
 BOOL CALLBACK DlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+BOOL CALLBACK DlgProcAdd(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam); //РїРѕРґРєР» РѕРєРЅР°
+BOOL CALLBACK DlgProcChange(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, INT nCmdShow)
 {
-	//hInstance - экземпляр запущенного *.exe-файла нашей программы
-	//hPrevInst - НЕ используется
-	//LPSTR - Long Pointer To String
-	//lpCmdLine - CommandLine (командная строка с параметрами запуска приложения)
-	//nCmdShow  - режим отображения окна (развернуто на весь экран, cвернуто на панель задач и т.д.)
-	//Префиксы: n..., lp... это Венгерская нотация
-	//			n - Number
-	//			lp - Long Pointer
-	//			h - HINSTANCE
-
-	/*MessageBox
-	(
+	DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, (DLGPROC)DlgProc, 0);
+	/*DWORD dwErrorMessageID = GetLastError();
+	LPSTR lpszMessageBuffer;
+	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		NULL,
-		"Hello Windows!\nThis is MessageBox()",
-		"Window title",
-		MB_CANCELTRYCONTINUE | MB_HELP | MB_DEFBUTTON3 |
-		MB_ICONINFORMATION |
-		MB_SERVICE_NOTIFICATION |
-		MB_RIGHT
-	);*/
-
-	DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), 0, (DLGPROC)DlgProc, 0);
-
+		dwErrorMessageID,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_RUSSIAN_RUSSIA),
+		(LPSTR) & lpszMessageBuffer,
+		0,
+		NULL
+	);
+	MessageBox(NULL, lpszMessageBuffer, "Error", MB_OK | MB_ICONINFORMATION);*/
 	return 0;
 }
 
-//Процедура окна:
 BOOL CALLBACK DlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	//hwnd - Handler to Window. Обработчик или дескриптор окна - это число, при помощи которого можно обратиться к окну.
-	//uMsg - Message. Сообщение, которое отправляется окну.
-	//wParam, lParam - это параметры сообщения, у каждого сообщения свой набор параметров.
-	//LOWORD - Младшее слово;
-	//HIWORD - Старшее слово;
-	//DWORD  - Double Word;
-
 	switch (uMsg)
 	{
-	case WM_INITDIALOG:	//Это сообшение отправляется 1 раз при инициализации окна
-		break;
-	case WM_COMMAND:	//Обрабатывает нажатие кнопок и другие действия пользователя
-		//ResourceID
+	case WM_INITDIALOG:
+	{
+		/*HICON hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_ICON1));
+		SendMessage(hwnd, WM_SETICON, 0, (LPARAM)hIcon);*/
+		HWND hCombo = GetDlgItem(hwnd, IDC_LIST1); // РїРѕР»СѓС‡РёР»Рё СЌР»РµРјРµРЅС‚ РґРѕС‡РµСЂРЅРµРіРѕ СЌР»РµРјРµРЅС‚Р° РѕРєРЅР° 
+		for (int i = 0; i < sizeof(g_LIST_BOX_ITEMS) / sizeof(g_LIST_BOX_ITEMS[0]); i++)
+		{
+			SendMessage(hCombo, LB_ADDSTRING, 0, (LPARAM)g_LIST_BOX_ITEMS[i]);
+		}
+		SendMessage(hCombo, LB_SETCURSEL, 0, 0); // РґР»СЏ РёР·РЅР°С‡Р°Р»СЊРЅРѕРіРѕ РІС‹Р±СЊРѕСЂР° РІ РѕРєРЅРµ
+
+	}
+	break;
+	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
-		case IDC_BUTTON_COPY:
+		case IDC_LIST1:
 		{
-			//1) Создаем буфер:
+			if (HIWORD(wParam) == LBN_DBLCLK)
+			{
+				//CONST INT SIZE = 256;
+				//CHAR sz_buffer[SIZE];
+				//INT i = SendMessage((HWND)lParam, LB_GETCURSEL, 0, 0);
+				//SendMessage((HWND)lParam, LB_GETTEXT, SIZE, (LPARAM)sz_buffer);
+				DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_ADD_ITEM), hwnd, DlgProcChange, 0);
+			}
+		}
+		break;
+		case IDC_BUTTON_ADD:
+			//GetModuleHandle(NULL) - РІРѕР·РІСЂР°С‰Р°РµС‚ hInstance Р·Р°РїСѓС‰РµРЅРЅРѕР№ РїСЂРѕРіСЂР°РјРёРјС‹
+			DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_ADD_ITEM), hwnd, DlgProcAdd, 0); // РґР»СЏ РїРѕСЏРІР»РµРЅРёСЏ РІС‚РѕСЂРѕРіРѕ РѕРєРЅР°
+			break;
+		case IDC_BUTTON_DELETE:  // СѓРґР°Р»СЏСЋ РїСѓРЅРєС‚ РёР· СЃРїРёСЃРєР°
+		{
+			HWND hList = GetDlgItem(hwnd, IDC_LIST1);
+			INT iSelectedItem = SendMessage(hList, LB_GETCURSEL, 0, 0);
+			if (iSelectedItem != LB_ERR)
+			{
+				SendMessage(hList, LB_DELETESTRING, iSelectedItem, 0);
+			}
+		}
+		break;
+		/*case IDC_BUTTON_EDIT1:  // СЂРµРєРґР°С‚РёСЂРѕРІР°С‚СЊ РїСѓРЅРєС‚ РёР· СЃРїРёСЃРєР°
+		{
+			HWND hList = GetDlgItem(hwnd, IDC_LIST1);
+			INT iSelectedItem = SendMessage(hList, LB_GETCURSEL, 0, 0);
+			if (iSelectedItem != LB_ERR)
+			{
+				DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_ADD_ITEM), hwnd, DlgProcAdd, iSelectedItem); // РґР»СЏ РїРѕСЏРІР»РµРЅРёСЏ  РѕРєРЅР° СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ, РїРѕР·Р¶Рµ РІСЃС‚Р°РІР»СЋ РѕРєРЅРѕ Рё РїРѕРјРµРЅСЏСЋ IDD
+			}
+			/*if (iSelectedItem != LB_ERR)
+			{
+				SendMessage(hList, CBN_EDITCHANGE, iSelectedItem, 0);
+			}
+		}
+		break;*/
+		case IDOK:
+		{
+			//HWND hList1 = GetDlgItem(hwnd, IDC_LIST1);
 			CONST INT SIZE = 256;
-			CHAR sz_buffer[SIZE] = {};	//sz_ - String Zero (NULL Terminated Line - C-string)
+			CHAR sz_buffer[SIZE]{};
+			CHAR sz_message[SIZE] = "Р’С‹ РЅРёС‡РµРіРѕ РЅРµ РІС‹Р±СЂР°Р»Рё.";
+			HWND hCombo = GetDlgItem(hwnd, IDC_LIST1);
+			INT i = SendMessage(hCombo, LB_GETCURSEL, 0, 0);
+			SendMessage(hCombo, LB_GETTEXT, i, (LPARAM)sz_buffer);
 
-			//2) Получаем обработчики текстовых полей:
-			HWND hEditLogin = GetDlgItem(hwnd, IDC_EDIT_LOGIN);
-			HWND hEditPassword = GetDlgItem(hwnd, IDC_EDIT_PASSWORD);
+			if (i != LB_ERR)
+				sprintf(sz_message, "Р’С‹ РІС‹Р±СЂР°Р»Рё СЌР»РµРјРµРЅС‚ в„–%i СЃРѕ Р·РЅР°С‡РµРЅРёРµРј %s.", i, sz_buffer);
+			MessageBox(hwnd, sz_message, "Info", MB_OK | MB_ICONINFORMATION);
 
-			//3) Считываем содержимое поля 'Login' в буфер:
-			SendMessage(hEditLogin, WM_GETTEXT, SIZE, (LPARAM)sz_buffer);
+			/*CONST INT SIZE = 256;
+			CHAR sz_buffer[SIZE]{};
+			CHAR sz_message[SIZE] = "Р’С‹ РЅРёС‡РµРіРѕ РЅРµ РІС‹Р±СЂР°Р»Рё.";
+			HWND hCombo = GetDlgItem(hwnd, IDC_LIST1);
+			INT i = SendMessage(hCombo, LB_GETCURSEL, 0, 0);
+			SendMessage(hCombo, LB_GETTEXT, i, (LPARAM)sz_buffer);
 
-			//4) Записываем полученный текст в текстовое поле 'Password':
-			SendMessage(hEditPassword, WM_SETTEXT, 0, (LPARAM)sz_buffer);
+			if (i != LB_ERR)
+				sprintf(sz_message, "Р’С‹ РІС‹Р±СЂР°Р»Рё СЌР»РµРјРµРЅС‚ в„–%i СЃРѕ Р·РЅР°С‡РµРЅРёРµРј %s.", i, sz_buffer);
+
+			MessageBox(hwnd, sz_message, "Info", MB_OK | MB_ICONINFORMATION);*/
+
+			/*HWND hCombo = GetDlgItem(hwnd, IDC_LIST1);
+			INT i = SendMessage(hCombo, CB_GETCURSEL, 0, 0);
+			CONST INT SIZE = 256;
+			CHAR sz_buffer[SIZE]{};
+			SendMessage(hCombo, CB_GETLBTEXT, i, (LPARAM)sz_buffer);
+			MessageBox(hwnd, sz_buffer, "Info", MB_OK | MB_ICONINFORMATION);
+			CHAR sz_message[SIZE]{};
+			wsprintf(sz_message, "Р’С‹ РІС‹Р±СЂР°Р»Рё РїСѓРЅРєС‚ в„–%i СЃРѕ Р·РЅР°С‡РµРЅРёРµРј \"%s\".", i, sz_buffer);*/
+			/*sprintf(sz_message, "Р’С‹ РІС‹Р±СЂР°Р»Рё РїСѓРЅРєС‚ в„–%i СЃРѕ Р·РЅР°С‡РµРЅРёРµРј \"%s\".", i, sz_buffer); // СЃРїРµС†РёС„РёРєР°С‚РѕСЂС‹, РІС‹РїРѕР»РЅСЏРµС‚ С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёРµ СЃС‚СЂРѕРє, С‚Рѕ РµСЃС‚СЊ РїРѕР·РІРѕР»СЏРµС‚ РІСЃС‚Р°РІРёС‚СЊ РІ СЃС‚СЂРѕРєСѓ РїРµСЂРµРјРµРЅРЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ.
+			// %i - С†РµР»РѕРµ С‡РёСЃР»Рѕ
+			// %s - СЃС‚СЂРѕРєР°
+			MessageBox(hwnd, sz_message, "Info", MB_OK | MB_ICONINFORMATION);*/
 		}
 		break;
-		case IDOK:		MessageBox(hwnd, "Была нажата кнопка OK", "Info", MB_OK | MB_ICONINFORMATION); break;
-		case IDCANCEL:	EndDialog(hwnd, 0); break;
+		case IDCANCEL:	MessageBox(hwnd, "Р‘С‹Р»Р° РЅР°Р¶Р°С‚Р° РєРЅРѕРїРєР° OРўРњР•РќРђ", "Info", MB_OK | MB_ICONINFORMATION); EndDialog(hwnd, 0);
 		}
 		break;
-	case WM_CLOSE:		//Отправляется при нажатии кнопки 'Закрыть' X
+	case WM_CLOSE:
 		EndDialog(hwnd, 0);
+	}
+	return FALSE;
+}
+BOOL CALLBACK DlgProcAdd(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch (uMsg)
+	{
+	case WM_INITDIALOG:
+		SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)"РР·РјРµРЅРёС‚СЊ");
+		SendMessage(GetDlgItem(hwnd, IDOK), WM_SETTEXT, 0, (LPARAM)"РЎРѕС…СЂР°РЅРёС‚СЊ");
+		SetFocus(GetDlgItem(hwnd, IDC_EDIT_NAME));
 		break;
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDOK:
+		{
+			CONST INT SIZE = 256;
+			CHAR sz_buffer[SIZE]{};
+			GetWindowText(GetDlgItem(hwnd, IDC_EDIT_NAME), sz_buffer, SIZE); // (РЅСѓР¶РЅР° РґР»СЏ С‚РѕРіРѕ С‡С‚РѕР±С‹ РїСЂРѕРІРµСЂРёС‚СЊ С‚РµРєСЃС‚ РЅР° РїСѓСЃС‚РѕС‚Сѓ)
+			if (sz_buffer[0] != '\0') //РµСЃР»Рё С‚РµРєСЃ РЅРµ СЂР°РІРµРЅ РґРµС‚РµСЂРјРёРЅРёСЂСѓСЋС‰РµРјСѓ РЅСѓР»СЋ, С‚Рѕ РїСЂРѕРІРµСЂСЏСЋ С‚РѕР»СЊРєРѕ РЅР° СЃРѕРІРїР°РґРµРЅРёРµ
+			{
+				HWND hParent = GetParent(hwnd);
+				HWND hListBox = GetDlgItem(hParent, IDC_LIST1);
+				if (SendMessage(hListBox, LB_FINDSTRING, -1, (LPARAM)sz_buffer) == LB_ERR)
+					SendMessage(hListBox, LB_ADDSTRING, 0, (LPARAM)sz_buffer);
+				else
+					MessageBox(hwnd, "РўР°РєРѕРµ РІС…РѕР¶РґРµРЅРёРµ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ ", "Info", MB_OK | MB_ICONINFORMATION);
+			}
+			else   //РµСЃР»Рё С‚РµРєСЃ РѕС‚СЃСѓС‚СЃРІСѓРµС‚-> СЃРѕРѕР±С‰ Рё РІС‹С…РѕРґ.
+				MessageBox(hwnd, "Р’С‹ РЅРёС‡РµРіРѕ РЅРµ РІРІРµР»Рё ", "Info", MB_OK | MB_ICONHAND);
+			EndDialog(hwnd, IDOK);
+		}
+		break;
+		case IDCANCEL:MessageBox(hwnd, "Р‘С‹Р»Р° РЅР°Р¶Р°С‚Р° РєРЅРѕРїРєР° OРўРњР•РќРђ", "Info", MB_OK | MB_ICONINFORMATION); EndDialog(hwnd, 0);
+		}
+		break;
+	case WM_CLOSE:
+		EndDialog(hwnd, 0);
+	}
+	return FALSE;
+}
+
+BOOL CALLBACK DlgProcChange(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch (uMsg)
+	{
+	case WM_INITDIALOG:
+	{
+		SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)"РР·РјРµРЅРёС‚СЊ");
+		SendMessage(GetDlgItem(hwnd, IDOK), WM_SETTEXT, 0, (LPARAM)"РЎРѕС…СЂР°РЅРёС‚СЊ");
+
+		CONST INT SIZE = 256;
+		CHAR sz_buffer[SIZE]{};
+		HWND hParent = GetParent(hwnd);
+		HWND hListBox = GetDlgItem(hParent, IDC_LIST1);
+		HWND hEdit = GetDlgItem(hwnd, IDC_EDIT_NAME);
+		INT i = SendMessage(hListBox, LB_GETCURSEL, 0, 0);
+		SendMessage(hListBox, LB_GETTEXT, i, (LPARAM)sz_buffer);
+		SendMessage(hEdit, WM_SETTEXT, 0, (LPARAM)sz_buffer);
+		SendMessage(hEdit, EM_SETSEL, 0, SendMessage(hEdit, WM_GETTEXTLENGTH, 0, 0));
+		SetFocus(GetDlgItem(hwnd, IDC_EDIT_NAME));
+		//     A  - ANSI/ASCII (Multibyte)
+		//     W  - Unicode(Wide Character)
+
+	}
+	break;
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDOK:
+		{
+			HWND hEdit = GetDlgItem(hwnd, IDC_EDIT_NAME);
+			HWND hParent = GetParent(hwnd);
+			HWND hListBox = GetDlgItem(hParent, IDC_LIST1);
+			CONST INT SIZE = 256;
+			CHAR sz_buffer[SIZE]{};
+			SendMessage(hEdit, WM_GETTEXT, SIZE, (LPARAM)sz_buffer);
+			INT i = SendMessage(hListBox, LB_GETCURSEL, 0, 0);
+			//SendMessage(hListBox, LB_SETITEMDATA, i, (LPARAM)sz_buffer);
+
+			if (SendMessage(hListBox, LB_FINDSTRING, -1, (LPARAM)sz_buffer) == LB_ERR)
+			{
+				SendMessage(hListBox, LB_DELETESTRING, i, 0);
+				SendMessage(hListBox, LB_INSERTSTRING, i, (LPARAM)sz_buffer);
+				EndDialog(hwnd, 0);
+			}
+			else
+			{
+				MessageBox(hwnd, "РўР°РєРѕРµ Р·РЅР°С‡РµРЅРёРµ СѓР¶Рµ РµСЃС‚СЊ РІ СЃРїРёСЃРєРµ", "Info", MB_OK | MB_ICONINFORMATION);
+			}
+
+		}
+		break;
+		case IDCANCEL: EndDialog(hwnd, 0);
+		}
+		break;
+	case WM_CLOSE:
+		EndDialog(hwnd, 0);
 	}
 	return FALSE;
 }
